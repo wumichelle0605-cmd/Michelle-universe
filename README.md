@@ -1,86 +1,128 @@
-# 玄学综合 · xuanxue-app
+# 🧪 卜日记 | 把玄学拉进实证实验室
 
-一个纯前端的多算法命理工具站，所有计算在你浏览器本地完成，**不上传任何数据**。
+> 一个面向实证研究的开源多算法命理工具集，帮你用数据验证“算命到底准不准”。
 
-## 功能模块
+⚠️ **重要声明**：本项目仅为社会观察类实证研究工具，所有内容均作娱乐与学术参考，不宣扬封建迷信，不构成任何人生决策建议。所有术数计算均调用开源算法库，无任何人工/AI编造内容。
+---
 
-| 路径 | 模块 | 数据来源 |
-|---|---|---|
-| `/` | 首页 / 出生档案 | localStorage |
-| `/reading` | 我的命盘（八字 + 紫微 + 占星 Tab 切换） | `taibu-core` 真实计算 |
-| `/daily` | 今日运势聚合（4 个算法的当日吉凶得分） | `taibu-core` |
-| `/diary` | 日记（记录当日真实感受 + 算法得分快照） | Dexie / IndexedDB |
-| `/dashboard` | 准确率看板（命中率 + Pearson 相关系数） | 本地统计 |
-| `/influencers` | 大V收藏（仅链接 + RSS，**不抓取内容**） | Dexie |
+## 🔍 项目背景：我们为什么做这个？
+>“如果玄学无法被数据证伪，那它或许就是另一种形式的统计学。”
 
-## 关键设计
+作为一名经济学学生，长期的量化思维让我始终对“玄学”这个知识体系里的异常值抱有好奇：
+传统命理本质是古人基于海量样本沉淀的经验概率推论，但现实中不同流派预测结果经常互相矛盾——八字说“今日破财”，占星说“财运亨通”，用户既没有客观的验证标准，也不知道不同方法的适用边界，所有“准”的结论本质都是幸存者偏差。
 
-- **可信计算**：所有算法均调用 [`taibu-core`](https://www.npmjs.com/package/taibu-core)，底层是 `lunar-javascript`、`tyme4ts`、`iztro`、`circular-natal-horoscope-js` 等真实库；**没有任何一处使用 LLM 编造结果**。
-- **隐私优先**：出生信息 / 日记 / 收藏全部存浏览器本地（localStorage + IndexedDB）。
-- **零后端**：纯静态，任何静态托管平台（Cloudflare Pages / Vercel / Netlify / GitHub Pages）都能跑。
+这个项目的核心目标不是做又一个算命网站，而是搭建一个**完全透明的玄学双盲实验平台**：
+- 对玄学爱好者：一键获取多流派测算结果，无需纠结“信哪个”，可自行记录真实事件对比准确率；
+- 对中立观测者：可以直接通过统计看板看到不同算法在各领域的命中率、相关系数，用数据建立认知；
+- 对实证研究者：所有数据本地可控，可导出原始样本做回归分析，最终要么证伪玄学的有效性，要么筛选出各领域确实有统计相关性的测算方法，明确其适用边界。
 
-## 本地开发
+## ✨ 核心特性
+### 🎯 设计理念
+- **无偏验证**：所有测算结果、记录、统计全程无人工干预，完全基于开源算法和用户真实记录计算准确率、Pearson相关系数，杜绝“信则灵”的主观偏差；
+- **隐私第一**：出生信息、日记记录、收藏内容100%存储在用户浏览器本地（localStorage + IndexedDB）；
+- **完全开源**：所有算法逻辑、统计规则透明可查，没有黑箱，所有人都可以基于源码做二次研究。
 
+### 🔧 技术亮点
+- **可信计算**：所有术数算法均调用行业通用开源库，没有任何LLM生成的虚假结果，测算逻辑可追溯；
+- **零后端纯静态**：打包后可直接部署在任意静态托管平台（Cloudflare Pages/Vercel/GitHub Pages等），无需服务器成本；
+
+## 📱 功能模块
+| 路径 | 模块 | 功能说明 | 数据存储 |
+|---|---|---|---|
+| `/` | 首页/出生档案 | 录入基础出生信息，作为所有测算的基准 | localStorage |
+| `/reading` | 命盘大厅 | 支持八字、紫微斗数、西洋占星3种主流命盘一键切换查看 | 调用`taibu-core`实时本地计算 |
+| `/daily` | 今日运势聚合 | 统一展示4种算法的当日各维度吉凶得分，无需逐个切换平台查询 | `taibu-core`本地计算 |
+| `/diary` | 事实记录日记 | 记录当日真实发生的事件、感受，同时自动快照当日所有算法的预测结果，作为验证的“锚点”数据 | Dexie / IndexedDB 本地存储 |
+| `/dashboard` | 准确率看板 | 自动统计你录入的所有数据，生成各算法的命中率、Pearson相关系数，细分事业/姻缘/健康/财运等维度 | 本地离线统计 |
+| `/influencers` | 命理博主收藏 | 支持收藏各平台命理博主的主页/RSS链接，方便统一查看不同博主的运势观点，避免跨平台跳转 | Dexie / IndexedDB 本地存储 |
+
+## 🔬 核心算法依赖
+所有测算均基于成熟开源术数库实现，无自研黑箱算法：
+- 基础农历转换：`lunar-javascript` / `tyme4ts`
+- 紫微斗数：`iztro`
+- 西洋占星：`circular-natal-horoscope-js`
+- 统一封装调用：`taibu-core`
+
+---
+
+## 🛠️ 本地开发
 ```bash
+# 安装依赖
 npm install
-npm run dev          # http://localhost:5173
-npm run build        # 生成 dist/
-npm run preview      # 预览生产构建
+# 启动开发服务器 http://localhost:5173
+npm run dev
+# 构建生产版本，生成 dist/ 目录
+npm run build
+# 预览生产构建结果
+npm run preview
 ```
 
-## 部署到 Cloudflare Pages（推荐）
+## 🚀 部署教程
+本项目为纯静态应用，所有托管平台均可部署，以下为推荐方案：
+### 方案1：Cloudflare Pages（推荐，国内访问速度最优）
+1. 将项目代码推到你的GitHub/GitLab/Bitbucket仓库
+2. 登录 [Cloudflare Pages](https://pages.cloudflare.com/) → 新建项目 → 关联你的Git仓库
+3. 构建配置填写：
+   - 框架预设：`Vite`
+   - 构建命令：`npm run build`
+   - 构建输出目录：`dist`
+   - 环境变量添加：`NODE_VERSION = 20`（或22）
+4. 点击部署，完成后会自动分配`xxx.pages.dev`域名，可绑定自定义域名
 
-1. 把 `xuanxue-app/` 推到一个 Git 仓库（GitHub / GitLab / Bitbucket）
-2. 登录 [Cloudflare Pages](https://pages.cloudflare.com/) → Create project → Connect to Git
-3. 选择仓库，构建配置：
-   - **Framework preset**: `Vite`
-   - **Build command**: `npm run build`
-   - **Build output directory**: `dist`
-   - **Node version** (环境变量): `NODE_VERSION = 20`（或 22）
-4. 部署完成后会得到 `https://xxx.pages.dev` 域名，可绑定自定义域名
+> 不想用Git也可以本地执行`npm run build`后，用`npx wrangler pages deploy dist`一键上传部署。
 
-> 如果不想用 Git，也可以本地 `npm run build` 后用 `npx wrangler pages deploy dist` 一键上传。
+### 方案2：Vercel
+关联仓库 → 框架选择`Vite` → 一键部署即可，无需额外配置。
 
-## 部署到 Vercel
+### 方案3：GitHub Pages
+1. 在`vite.config.ts`中添加`base: "/xuanxue-app/"`（替换为你的仓库名）
+2. 本地构建后将`dist/`目录内容推到仓库的`gh-pages`分支即可。
 
-同上：连接仓库 → Framework 选 Vite → 一键部署。
+---
 
-## 已知限制
+## 📌 已知限制
+- 占星模块依赖的`circular-natal-horoscope-js`存在部分Node内置模块兼容问题，构建时会出现externalize警告，已做容错处理，不影响其他模块运行，后续将切换为`swisseph-wasm`提升占星精度；
+- 当前打包后体积约7MB（gzip后2.4MB），主要为紫微、占星算法库体积，后续将通过动态导入实现按需加载优化；
 
-- 占星模块（`circular-natal-horoscope-js`）依赖部分 Node 内置模块，在浏览器构建时会有 externalize 警告。已用 try/catch 容错，失败也不会影响其他算法。如需更精准的占星，未来可改接 [`swisseph-wasm`](https://github.com/timotejroiko/sweph-wasm)。
-- 当前打包后 ~7MB（gzip 2.4MB），主要是 `taibu-core` + `iztro` 体积。后续可用 `import()` 动态拆包，把紫微/占星按需加载。
-- 大V聚合**仅做链接收藏**，刻意不抓取正文，避免版权与反爬风险。如果要做"运势 timeline"，建议接 [RSSHub](https://docs.rsshub.app/) 等 RSS 源。
+## 🛣️ 路线图
+### v1.x 迭代（当前稳定版）
+- [ ] 紫微斗数飞星/四化详细解读
+- [ ] 占星模块切换`swisseph-wasm`提升精度
+- [ ] 新增数据JSON导入导出功能，支持本地备份
+- [ ] 支持PWA离线可用
+- [ ] 接入大模型生成中性盲测问题，用户作答后自动匹配预测结果计算差异度，避免主观判断偏差
 
-## 目录结构
+### v2.0 规划
+- [ ] 新增梅花易数、六爻、塔罗牌等更多测算工具，扩大验证范围
+- [ ] 支持可选匿名上传脱敏统计数据，生成全量用户公共回归看板，展示不同算法的整体命中率
+- [ ] 支持接入RSS源自动同步命理博主的运势内容，批量对比博主预测准确率
 
+## 📂 目录结构
 ```
 xuanxue-app/
 ├── src/
-│   ├── App.tsx                # 路由
+│   ├── App.tsx                # 路由配置
 │   ├── main.tsx
-│   ├── index.css              # Tailwind v4 + 主题
-│   ├── components/Layout.tsx  # 全站导航
+│   ├── index.css              # Tailwind v4 全局样式
+│   ├── components/Layout.tsx  # 全站导航布局
 │   ├── lib/
-│   │   ├── store.ts           # zustand 用户档案
-│   │   ├── db.ts              # Dexie 日记/收藏
-│   │   └── calc.ts            # 算法封装（核心）
+│   │   ├── store.ts           # zustand 全局状态管理（用户档案）
+│   │   ├── db.ts              # Dexie 本地数据库（日记/收藏）
+│   │   └── calc.ts            # 算法封装核心逻辑
 │   └── pages/
-│       ├── Home.tsx
-│       ├── Reading.tsx
-│       ├── DailyFortune.tsx
-│       ├── Diary.tsx
-│       ├── Dashboard.tsx
-│       └── Influencers.tsx
+│       ├── Home.tsx           # 首页
+│       ├── Reading.tsx        # 命盘大厅
+│       ├── DailyFortune.tsx   # 今日运势
+│       ├── Diary.tsx          # 日记记录
+│       ├── Dashboard.tsx      # 准确率看板
+│       └── Influencers.tsx    # 博主收藏
 ├── index.html
 ├── vite.config.ts
 └── package.json
 ```
 
-## 路线图（v2 候选）
+## 🤝 贡献指南
+欢迎提交Issue、PR，无论是修复bug、新增功能、优化算法，都非常感谢！提交前请确保代码符合项目规范，且不涉及任何封建迷信引导内容。
 
-- [ ] 紫微"飞星 / 四化"详细解读
-- [ ] 占星接 swisseph-wasm 提升精度
-- [ ] 梅花 / 六爻 / 塔罗 也接入排盘大厅
-- [ ] 数据导入导出（JSON 备份）
-- [ ] PWA 离线可用
-- [ ] 把 Dart Shelf 老版本（`bazi_web/`）作为对照接口接入
+## 📄 许可证
+MIT License，详见LICENSE文件。
