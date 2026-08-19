@@ -1,0 +1,37 @@
+{
+  "schema": "cowork-project/v1",
+  "id": "cw_proj_fatelab_2026",
+  "name": "fatelab",
+  "srcDir": "/home/node/.openclaw/workspace/fatelab",
+  "createdAt": 1782912000000,
+  "updatedAt": 1783063403392,
+  "createdBy": "seal-agent",
+  "stack": "pure-spa-vite",
+  "guardCompliant": true,
+  "pack": {
+    "keep": [
+      "dist"
+    ]
+  },
+  "devConfig": {
+    "preStart": [
+      "test -d node_modules/vite || NODE_ENV=development npm install --silent --include=dev --registry=http://registry.npmmirror.com"
+    ],
+    "run": "npm run dev -- --host 0.0.0.0 --port ${PORT}"
+  },
+  "cowork": {
+    "workId": 62698,
+    "workDeployType": "APP_DEPLOY",
+    "appId": "468b04bf",
+    "alias": "fatelab3",
+    "accessUrl": "https://cowork.xiaohongshu.com/s/fatelab3/",
+    "coworkAppUrl": "https://cowork.xiaohongshu.com/app/NWEzYzlhYzc",
+    "rawAccessUrl": "https://cowork.xiaohongshu.com/s/468b04bf/",
+    "deploymentId": 9584,
+    "deploymentStatus": "RUNNING",
+    "publishedAt": 1783063403392,
+    "visibility": "PUBLIC",
+    "version": "1.0.13",
+    "lastZipHash": "sha256:0c10cee4c4d7d6465356225ccbdc889daf482bca61e3d3292843ef3dddda1cd2"
+  }
+}
