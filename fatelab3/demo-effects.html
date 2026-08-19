@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>动效库演示</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0a; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; overflow-x: hidden; }
+
+  /* Lenis smooth scroll */
+  html.lenis { height: auto; }
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+  .section { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 40px; gap: 40px; }
+  .section-label { font-size: 12px; letter-spacing: 4px; color: #666; text-transform: uppercase; }
+  .section-title { font-size: 48px; font-weight: 700; text-align: center; line-height: 1.2; }
+  .section-sub { font-size: 16px; color: #888; text-align: center; max-width: 480px; line-height: 1.6; }
+  .divider { width: 100%; height: 1px; background: #1a1a1a; }
+
+  /* ─── 1. Framer Motion 数字入场 ─── */
+  #s1 { background: #0a0a0a; }
+  .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; max-width: 800px; }
+  .metric-card {
+    background: #111; border: 1px solid #222; border-radius: 16px;
+    padding: 28px 24px; text-align: center;
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .metric-card.visible { opacity: 1; transform: translateY(0); }
+  .metric-card:nth-child(1) { transition-delay: 0s; }
+  .metric-card:nth-child(2) { transition-delay: 0.1s; }
+  .metric-card:nth-child(3) { transition-delay: 0.2s; }
+  .metric-card:nth-child(4) { transition-delay: 0.3s; }
+  .metric-num { font-size: 40px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+  .metric-num span { display: inline-block; }
+  .metric-pct { font-size: 20px; color: #555; }
+  .metric-lbl { font-size: 13px; color: #666; margin-top: 8px; }
+
+  /* ─── 2. Framer Motion 卡片入场 ─── */
+  #s2 { background: #070710; }
+  .cards-row { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 900px; }
+  .fortune-card {
+    background: #0f0f1a; border: 1px solid #1e1e35; border-radius: 20px;
+    padding: 28px 24px; width: 200px;
+    opacity: 0; transform: scale(0.88) translateY(30px);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+  }
+  .fortune-card.visible { opacity: 1; transform: scale(1) translateY(0); }
+  .fortune-card:nth-child(1) { transition-delay: 0s; }
+  .fortune-card:nth-child(2) { transition-delay: 0.08s; }
+  .fortune-card:nth-child(3) { transition-delay: 0.16s; }
+  .fortune-card:nth-child(4) { transition-delay: 0.24s; }
+  .fortune-card:nth-child(5) { transition-delay: 0.32s; }
+  .fortune-card:hover { transform: scale(1.04) translateY(-4px) !important; border-color: #3a3a6a; }
+  .fc-icon { font-size: 32px; margin-bottom: 12px; }
+  .fc-name { font-size: 16px; font-weight: 700; color: #e0e0f0; margin-bottom: 6px; }
+  .fc-score-row { display: flex; align-items: center; gap: 8px; }
+  .fc-bar-bg { flex: 1; height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
+  .fc-bar { height: 100%; border-radius: 2px; transform-origin: left; transform: scaleX(0); transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+  .fortune-card.visible .fc-bar { transform: scaleX(1); }
+  .fc-val { font-size: 13px; font-weight: 700; color: #fff; }
+
+  /* ─── 3. Number Flow 滚动数字 ─── */
+  #s3 { background: #040a04; }
+  .nf-demo { display: flex; gap: 48px; flex-wrap: wrap; justify-content: center; }
+  .nf-item { text-align: center; }
+  .nf-num {
+    font-size: 72px; font-weight: 800; font-variant-numeric: tabular-nums;
+    line-height: 1; color: #34C759;
+    transition: color 0.3s;
+  }
+  .nf-num.neutral { color: #0071E3; }
+  .nf-num.warn { color: #FF9500; }
+  .nf-label { font-size: 14px; color: #555; margin-top: 8px; }
+  .nf-btn { margin-top: 32px; padding: 12px 32px; background: #1a2a1a; border: 1px solid #2a4a2a; border-radius: 20px; color: #34C759; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .nf-btn:hover { background: #2a3a2a; }
+
+  /* ─── 4. Lenis 丝滑滚动视差 ─── */
+  #s4 { background: #0a050a; position: relative; overflow: hidden; }
+  .parallax-wrap { position: relative; width: 100%; max-width: 700px; }
+  .parallax-layer { border-radius: 20px; padding: 32px; margin-bottom: 16px; }
+  .pl-1 { background: linear-gradient(135deg, #1a0a2a, #2a1a3a); border: 1px solid #3a2a4a; transform: translateY(0); will-change: transform; }
+  .pl-2 { background: linear-gradient(135deg, #0a1a2a, #1a2a3a); border: 1px solid #2a3a4a; transform: translateY(0); will-change: transform; }
+  .pl-3 { background: linear-gradient(135deg, #0a2a1a, #1a3a2a); border: 1px solid #2a4a3a; transform: translateY(0); will-change: transform; }
+  .pl-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .pl-desc { font-size: 14px; color: #888; line-height: 1.6; }
+
+  /* ─── 5. GSAP 进度条动画 ─── */
+  #s5 { background: #0a0808; }
+  .gsap-bars { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 20px; }
+  .gsap-row { display: flex; flex-direction: column; gap: 6px; }
+  .gsap-row-header { display: flex; justify-content: space-between; font-size: 14px; }
+  .gsap-label { color: #ccc; font-weight: 600; }
+  .gsap-pct { color: #888; }
+  .gsap-track { height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden; }
+  .gsap-fill { height: 100%; border-radius: 4px; width: 0%; transition: none; }
+
+  /* ─── 6. 星座卡片 hover 3D ─── */
+  #s6 { background: #08080f; }
+  .tilt-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; max-width: 700px; }
+  .tilt-card {
+    background: #0f0f18; border: 1px solid #1e1e2e; border-radius: 16px;
+    padding: 20px; text-align: center; cursor: pointer;
+    transition: box-shadow 0.3s;
+    transform-style: preserve-3d;
+    perspective: 600px;
+  }
+  .tilt-card:hover { box-shadow: 0 20px 60px rgba(100,80,200,0.3); }
+  .tilt-emoji { font-size: 28px; margin-bottom: 6px; display: block; }
+  .tilt-name { font-size: 13px; font-weight: 600; color: #c0c0d0; }
+  .tilt-score { font-size: 11px; color: #666; margin-top: 4px; }
+
+  /* scroll indicator */
+  .scroll-hint { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #444; letter-spacing: 3px; animation: bounce 2s infinite; }
+  @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-8px)} }
+
+  /* highlight bar */
+  .highlight { color: #0071E3; }
+  .highlight-g { color: #34C759; }
+</style>
+</head>
+<body>
+
+<div class="scroll-hint">SCROLL ↓</div>
+
+<!-- ─── Section 1: 数字入场动效 ─── -->
+<div class="section" id="s1">
+  <div class="section-label">Framer Motion 效果 · 数字卡片入场</div>
+  <div class="section-title">命中率指标<br><span class="highlight">滚动触发入场</span></div>
+  <div class="section-sub">卡片从下方滑入，依次延迟出现，模拟效力榜单加载效果</div>
+  <div class="metrics-grid" id="metricsGrid">
+    <div class="metric-card">
+      <div class="metric-num"><span id="n1">0</span><span class="metric-pct">%</span></div>
+      <div class="metric-lbl">整体命中率</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-num"><span id="n2">0</span><span class="metric-pct"></span></div>
+      <div class="metric-lbl">有效样本量 n</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-num"><span id="n3">0</span><span class="metric-pct"></span></div>
+      <div class="metric-lbl">盲测完成次数</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-num"><span id="n4">0</span><span class="metric-pct"></span></div>
+      <div class="metric-lbl">覆盖流派数</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── Section 2: 命盘卡片弹性入场 ─── -->
+<div class="section" id="s2">
+  <div class="section-label">Framer Motion · 弹性入场 + Hover 浮起</div>
+  <div class="section-title">各维度运势卡片<br><span style="color:#9B8FFF">弹性缩放动效</span></div>
+  <div class="section-sub">卡片用 cubic-bezier(0.34,1.56) 弹性曲线入场，hover 时轻微浮起</div>
+  <div class="cards-row" id="cardsRow">
+    <div class="fortune-card">
+      <div class="fc-icon">⚫</div>
+      <div class="fc-name">八字排盘</div>
+      <div class="fc-score-row">
+        <div class="fc-bar-bg"><div class="fc-bar" style="background:#0071E3;width:73%"></div></div>
+        <div class="fc-val">73%</div>
+      </div>
+    </div>
+    <div class="fortune-card">
+      <div class="fc-icon">📅</div>
+      <div class="fc-name">今日黄历</div>
+      <div class="fc-score-row">
+        <div class="fc-bar-bg"><div class="fc-bar" style="background:#34C759;width:68%"></div></div>
+        <div class="fc-val">68%</div>
+      </div>
+    </div>
+    <div class="fortune-card">
+      <div class="fc-icon">⚡</div>
+      <div class="fc-name">小六壬</div>
+      <div class="fc-score-row">
+        <div class="fc-bar-bg"><div class="fc-bar" style="background:#FF9500;width:61%"></div></div>
+        <div class="fc-val">61%</div>
+      </div>
+    </div>
+    <div class="fortune-card">
+      <div class="fc-icon">⭐</div>
+      <div class="fc-name">西洋占星</div>
+      <div class="fc-score-row">
+        <div class="fc-bar-bg"><div class="fc-bar" style="background:#9B8FFF;width:71%"></div></div>
+        <div class="fc-val">71%</div>
+      </div>
+    </div>
+    <div class="fortune-card">
+      <div class="fc-icon">🔯</div>
+      <div class="fc-name">紫微斗数</div>
+      <div class="fc-score-row">
+        <div class="fc-bar-bg"><div class="fc-bar" style="background:#FF3B30;width:58%"></div></div>
+        <div class="fc-val">58%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── Section 3: Number Flow 数字滚动 ─── -->
+<div class="section" id="s3">
+  <div class="section-label">@number-flow/react · 数字滚动动效</div>
+  <div class="section-title">数字<span class="highlight-g">滚轮式</span>变化<br>不是简单的 lerp</div>
+  <div class="section-sub">每一位数字独立滚动，像机械计数器一样，适合命中率、Pearson r 等指标实时更新</div>
+  <div class="nf-demo">
+    <div class="nf-item">
+      <div class="nf-num" id="nf1">67.3</div>
+      <div class="nf-label">整体命中率 %</div>
+    </div>
+    <div class="nf-item">
+      <div class="nf-num neutral" id="nf2">128</div>
+      <div class="nf-label">样本量 n</div>
+    </div>
+    <div class="nf-item">
+      <div class="nf-num warn" id="nf3">0.312</div>
+      <div class="nf-label">Pearson r̄</div>
+    </div>
+  </div>
+  <button class="nf-btn" onclick="rollNumbers()">🎲 随机更新数字</button>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── Section 4: Lenis 视差滚动 ─── -->
+<div class="section" id="s4">
+  <div class="section-label">Lenis · 丝滑滚动 + 视差偏移</div>
+  <div class="section-title">卡片<span style="color:#C084FC">视差</span>错位滚动<br>深度感层次</div>
+  <div class="section-sub">三层卡片以不同速率滚动，产生深度错落感。你现在感受到的滚动丝滑感就是 Lenis 提供的。</div>
+  <div class="parallax-wrap" id="parallaxWrap">
+    <div class="parallax-layer pl-1" id="pl1">
+      <div class="pl-title">🔮 命盘解析层（慢速）</div>
+      <div class="pl-desc">八字排盘 · 黄历 · 小六壬 · 星座 · 紫微斗数，多流派综合命盘，scrollY 影响系数 0.1×</div>
+    </div>
+    <div class="parallax-layer pl-2" id="pl2">
+      <div class="pl-title">🎯 盲测实验层（中速）</div>
+      <div class="pl-desc">双盲题目生成 · AI 语义打分 · 数据入库，scrollY 影响系数 0.2×</div>
+    </div>
+    <div class="parallax-layer pl-3" id="pl3">
+      <div class="pl-title">📊 效力看板层（快速）</div>
+      <div class="pl-desc">实时命中率 · Pearson r · 显著性检验 · 维度热力图，scrollY 影响系数 0.35×</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── Section 5: GSAP 进度条动画 ─── -->
+<div class="section" id="s5">
+  <div class="section-label">GSAP · ScrollTrigger 进度条</div>
+  <div class="section-title">滚动触发<br><span style="color:#FF6B6B">逐条展开</span>进度条</div>
+  <div class="section-sub">GSAP ScrollTrigger 监听视口，进入时依次展开，比 CSS transition 可控性更强</div>
+  <div class="gsap-bars" id="gsapBars">
+    <div class="gsap-row" data-pct="73" data-color="#0071E3">
+      <div class="gsap-row-header"><span class="gsap-label">⚫ 八字排盘</span><span class="gsap-pct">73%</span></div>
+      <div class="gsap-track"><div class="gsap-fill" style="background:#0071E3"></div></div>
+    </div>
+    <div class="gsap-row" data-pct="71" data-color="#9B8FFF">
+      <div class="gsap-row-header"><span class="gsap-label">🔯 西洋占星</span><span class="gsap-pct">71%</span></div>
+      <div class="gsap-track"><div class="gsap-fill" style="background:#9B8FFF"></div></div>
+    </div>
+    <div class="gsap-row" data-pct="68" data-color="#34C759">
+      <div class="gsap-row-header"><span class="gsap-label">📅 今日黄历</span><span class="gsap-pct">68%</span></div>
+      <div class="gsap-track"><div class="gsap-fill" style="background:#34C759"></div></div>
+    </div>
+    <div class="gsap-row" data-pct="62" data-color="#FF9500">
+      <div class="gsap-row-header"><span class="gsap-label">⚡ 小六壬</span><span class="gsap-pct">62%</span></div>
+      <div class="gsap-track"><div class="gsap-fill" style="background:#FF9500"></div></div>
+    </div>
+    <div class="gsap-row" data-pct="58" data-color="#FF3B30">
+      <div class="gsap-row-header"><span class="gsap-label">🌙 紫微斗数</span><span class="gsap-pct">58%</span></div>
+      <div class="gsap-track"><div class="gsap-fill" style="background:#FF3B30"></div></div>
+    </div>
+    <div class="gsap-row" data-pct="48" data-color="#AC8E68">
+      <div class="gsap-row-header"><span class="gsap-label">🃏 塔罗牌</span><span class="gsap-pct">48%</span></div>
+      <div class="gsap-track"><div class="gsap-fill" style="background:#AC8E68"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── Section 6: 3D Tilt hover ─── -->
+<div class="section" id="s6">
+  <div class="section-label">CSS 3D Transform · Tilt on hover</div>
+  <div class="section-title">星座卡片<br><span style="color:#F9A8D4">3D 倾斜</span> Hover</div>
+  <div class="section-sub">鼠标在卡片上移动时，卡片跟随鼠标方向倾斜，产生真实的 3D 景深感</div>
+  <div class="tilt-grid" id="tiltGrid">
+    <div class="tilt-card" data-emoji="♈" data-name="白羊座" data-score="82"></div>
+    <div class="tilt-card" data-emoji="♉" data-name="金牛座" data-score="76"></div>
+    <div class="tilt-card" data-emoji="♊" data-name="双子座" data-score="71"></div>
+    <div class="tilt-card" data-emoji="♋" data-name="巨蟹座" data-score="85"></div>
+    <div class="tilt-card" data-emoji="♌" data-name="狮子座" data-score="68"></div>
+    <div class="tilt-card" data-emoji="♍" data-name="处女座" data-score="79"></div>
+    <div class="tilt-card" data-emoji="♎" data-name="天秤座" data-score="74"></div>
+    <div class="tilt-card" data-emoji="♏" data-name="天蝎座" data-score="88"></div>
+  </div>
+  <div style="margin-top:16px;font-size:13px;color:#444">👆 把鼠标移到星座卡片上试试</div>
+</div>
+
+<div style="height:100px;display:flex;align-items:center;justify-content:center;color:#333;font-size:12px;letter-spacing:2px;">
+  XUANLAB · DEMO · framer-motion + lenis + gsap + @number-flow/react
+</div>
+
+<script>
+// ─── Lenis 平滑滚动 ───
+let lenisScroll = 0;
+let lenisTarget = 0;
+let isLenis = true;
+
+window.addEventListener('wheel', e => {
+  if (!isLenis) return;
+  e.preventDefault();
+  lenisTarget += e.deltaY * 0.8;
+  lenisTarget = Math.max(0, Math.min(lenisTarget, document.body.scrollHeight - window.innerHeight));
+}, { passive: false });
+
+function lenisTick() {
+  lenisScroll += (lenisTarget - lenisScroll) * 0.09;
+  window.scrollTo(0, lenisScroll);
+  // Parallax
+  const pl1 = document.getElementById('pl1');
+  const pl2 = document.getElementById('pl2');
+  const pl3 = document.getElementById('pl3');
+  const s4top = document.getElementById('s4').offsetTop;
+  const rel = lenisScroll - s4top + window.innerHeight * 0.5;
+  if (pl1) pl1.style.transform = `translateY(${rel * 0.08}px)`;
+  if (pl2) pl2.style.transform = `translateY(${-rel * 0.12}px)`;
+  if (pl3) pl3.style.transform = `translateY(${rel * 0.2}px)`;
+  requestAnimationFrame(lenisTick);
+}
+lenisTick();
+
+// ─── IntersectionObserver: 卡片入场 + GSAP 进度条 ───
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+
+    // 数字指标卡片
+    if (el.id === 'metricsGrid') {
+      el.querySelectorAll('.metric-card').forEach(c => c.classList.add('visible'));
+      countUp('n1', 0, 67, 1200, v => v.toFixed(1));
+      countUp('n2', 0, 128, 1400, v => Math.round(v));
+      countUp('n3', 0, 47, 1000, v => Math.round(v));
+      countUp('n4', 0, 8, 800, v => Math.round(v));
+    }
+    // 命盘卡片
+    if (el.id === 'cardsRow') {
+      el.querySelectorAll('.fortune-card').forEach(c => c.classList.add('visible'));
+    }
+    // GSAP 进度条
+    if (el.id === 'gsapBars') {
+      el.querySelectorAll('.gsap-row').forEach((row, i) => {
+        const pct = row.getAttribute('data-pct');
+        const fill = row.querySelector('.gsap-fill');
+        setTimeout(() => {
+          fill.style.transition = `width 1.2s cubic-bezier(0.4,0,0.2,1)`;
+          fill.style.width = pct + '%';
+        }, i * 120);
+      });
+    }
+    io.unobserve(el);
+  });
+}, { threshold: 0.25 });
+
+document.getElementById('metricsGrid') && io.observe(document.getElementById('metricsGrid'));
+document.getElementById('cardsRow') && io.observe(document.getElementById('cardsRow'));
+document.getElementById('gsapBars') && io.observe(document.getElementById('gsapBars'));
+
+// ─── countUp 动画 ───
+function countUp(id, from, to, duration, fmt) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    el.textContent = fmt(from + (to - from) * ease);
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// ─── Number Flow 数字滚动（CSS 模拟 slot machine 效果）───
+function rollNumbers() {
+  const rates = [44.1, 58.7, 62.3, 67.3, 71.8, 73.2, 75.9, 80.1];
+  const ns = [64, 96, 112, 128, 145, 167, 200, 256];
+  const rs = [0.141, 0.213, 0.267, 0.312, 0.388, 0.421, 0.498, 0.521];
+  const r1 = rates[Math.floor(Math.random()*rates.length)];
+  const r2 = ns[Math.floor(Math.random()*ns.length)];
+  const r3 = rs[Math.floor(Math.random()*rs.length)];
+
+  animateNumber('nf1', parseFloat(document.getElementById('nf1').textContent), r1, 900, v => v.toFixed(1));
+  animateNumber('nf2', parseInt(document.getElementById('nf2').textContent), r2, 1100, v => Math.round(v));
+  animateNumber('nf3', parseFloat(document.getElementById('nf3').textContent), r3, 1300, v => v.toFixed(3));
+}
+
+function animateNumber(id, from, to, dur, fmt) {
+  const el = document.getElementById(id);
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min((now - start) / dur, 1);
+    const ease = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+    const val = from + (to - from) * ease;
+    el.textContent = fmt(val);
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// ─── 3D Tilt hover ───
+document.querySelectorAll('.tilt-card').forEach(card => {
+  const d = card.dataset;
+  card.innerHTML = `<span class="tilt-emoji">${d.emoji}</span><div class="tilt-name">${d.name}</div><div class="tilt-score">今日运势 ${d.score}</div>`;
+
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `perspective(600px) rotateX(${-y * 16}deg) rotateY(${x * 16}deg) scale(1.05)`;
+    card.style.transition = 'transform 0.1s linear';
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(600px) rotateX(0deg) rotateY(0deg) scale(1)';
+    card.style.transition = 'transform 0.5s ease';
+  });
+});
+</script>
+</body>
+</html>
